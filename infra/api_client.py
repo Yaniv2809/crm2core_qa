@@ -5,35 +5,32 @@ from requests.exceptions import RequestException
 logger = logging.getLogger(__name__)
 
 class APIClient:
-    """
-    מחלקה גנרית לביצוע קריאות רשת.
-    מטרתה לרכז את כל הטיפול בשגיאות HTTP ותצורת הקריאות במקום אחד.
-    """
+    """ A simple API client to handle GET requests and return JSON responses."""
     
     @staticmethod
     def get(url: str, params: dict = None, headers: dict = None, timeout: int = 10) -> dict:
         """
-        מבצעת קריאת GET ומחזירה את התשובה כ-JSON.
+        Sends a GET request and returns the response as JSON.
         
-        :param url: הכתובת אליה פונים
-        :param params: פרמטרים שיתווספו ל-URL (Query Params)
-        :param headers: כותרות (Headers) לקריאה
-        :param timeout: זמן מקסימלי להמתנה בשניות
-        :return: מילון (dict) המייצג את תשובת ה-JSON
+        :param url: The URL to request
+        :param params: Parameters to include in the URL (Query Params)
+        :param headers: Headers for the request
+        :param timeout: Maximum time to wait for a response in seconds
+        :return: A dictionary representing the JSON response
         """
         logger.debug(f"Sending GET request to: {url} | Params: {params}")
         
         try:
             response = requests.get(url, params=params, headers=headers, timeout=timeout)
             
-            # פונקציה קריטית: זורקת שגיאה אם הסטטוס קוד הוא 4xx או 5xx
+            # Critical function: Raises an error if the status code is 4xx or 5xx
             response.raise_for_status()
             
             return response.json()
             
         except RequestException as e:
-            # תפיסת כל שגיאות הרשת (Timeout, Connection Error, HTTP Error)
+            # Capturing all network errors (Timeout, Connection Error, HTTP Error)
             logger.error(f"API Request failed for URL {url}. Error: {e}")
             
-            # אנחנו זורקים את השגיאה הלאה, כדי שהטסט יכשל ולא ימשיך לרוץ על נתונים ריקים
+            # We raise the error further, so the test fails and doesn't continue running on empty data
             raise RuntimeError(f"Failed to fetch data from API: {e}")

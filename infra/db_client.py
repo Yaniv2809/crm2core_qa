@@ -1,42 +1,40 @@
 import sqlite3
 import logging
 
-# הגדרת לוגר פשוט כדי שנוכל לראות איזה שאילתות רצות מאחורי הקלעים
+# configuring the logger for this module
 logger = logging.getLogger(__name__)
 
 class DBClient:
     def __init__(self, db_path: str):
-        """
-        מקבלת את נתיב מסד הנתונים בעת יצירת המופע (Instance).
-        כך נוכל להשתמש באותה מחלקה גם עבור ה-CRM וגם עבור ה-Bank Core.
-        """
+        """Initializes the DBClient with the path to the SQLite database."""
+
         self.db_path = db_path
 
     def _get_connection(self):
-        """פונקציה פנימית ליצירת חיבור למסד הנתונים"""
+        """Establishes a connection to the SQLite database."""
         return sqlite3.connect(self.db_path)
 
     def fetch_all(self, query: str, params: tuple = ()) -> list:
         """
-        מבצעת שאילתת שליפה (SELECT) ומחזירה את התוצאות.
-        :param query: מחרוזת שאילתת ה-SQL
-        :param params: פרמטרים להזרקה למניעת SQL Injection
-        :return: רשימה של מילונים (Dictionaries) המייצגים את הרשומות
+        Executes a SELECT query and returns the results.
+        :param query: The SQL query string
+        :param params: Parameters for the query to prevent SQL Injection
+        :return: A list of dictionaries representing the rows
         """
         with self._get_connection() as conn:
-            # הגדרה קריטית לאוטומציה: מחזיר מילון במקום Tuple רגיל
+            # Setting the row factory to sqlite3.Row allows us to access columns by name
             conn.row_factory = sqlite3.Row 
             cursor = conn.cursor()
             
             logger.debug(f"Executing query: {query} | Params: {params}")
             cursor.execute(query, params)
             
-            # המרה חכמה של התוצאות לרשימה של מילונים (Key-Value)
+            # converting the results to a list of dictionaries (Key-Value)
             return [dict(row) for row in cursor.fetchall()]
 
     def execute_query(self, query: str, params: tuple = ()):
         """
-        מבצעת שאילתות שלא מחזירות נתונים כמו INSERT, UPDATE, DELETE, CREATE TABLE
+        Executes queries that do not return data, such as INSERT, UPDATE, DELETE, CREATE TABLE
         """
         with self._get_connection() as conn:
             cursor = conn.cursor()

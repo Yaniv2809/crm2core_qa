@@ -7,12 +7,9 @@ class ConfigManager:
 
     @classmethod
     def load_config(cls):
-        """
-        טוען את קובץ הקונפיגורציה רק אם הוא טרם נטען.
-        מונע קריאות מרובות לדיסק במהלך ריצת הטסטים.
-        """
+        """ loads the configuration from a JSON file and caches it for future use. """
         if cls._config_data is None:
-            # מציאת נתיב השורש של הפרויקט בצורה דינמית
+            # finding the config.json file relative to this script's location
             base_dir = Path(__file__).parent.parent
             config_path = base_dir / "config" / "config.json"
 
@@ -44,7 +41,7 @@ class ConfigManager:
     def get_allowed_deviation(cls) -> float:
         return cls.load_config()["business_logic"]["allowed_deviation_cents"]
 
-# בדיקה מהירה שניתן להריץ רק מהקובץ הזה כדי לוודא שעובד
+# quick test to verify the configuration is loaded correctly
 if __name__ == "__main__":
     print(f"Loaded API URL: {ConfigManager.get_api_url()}")
     print(f"CRM DB Path: {ConfigManager.get_crm_db_path()}")
