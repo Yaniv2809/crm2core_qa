@@ -1,0 +1,15 @@
+{
+  "environment": "QA",
+  "api": {
+    "exchange_rate_url": "https://open.er-api.com/v6/latest/USD",
+    "timeout_seconds": 10
+  },
+  "database": {
+    "crm_db_path": "crm_core.db",
+    "bank_db_path": "bank_core.db"
+  },
+  "business_logic": {
+    "default_ils_rate": 3.75,
+    "allowed_deviation_cents": 0.01
+  }
+}
