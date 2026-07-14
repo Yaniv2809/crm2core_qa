@@ -1,0 +1,63 @@
+# CRM2Core Data Sync Validator 🔄🏦
+
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![Pytest](https://img.shields.io/badge/Pytest-7.0+-brightgreen.svg)
+![SQLite](https://img.shields.io/badge/SQLite-Database-lightgrey.svg)
+![CI/CD](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-orange.svg)
+
+An automated **Data Integrity and ETL Validation Framework** designed to ensure zero data loss and financial accuracy when syncing records from a CRM system to a Core-Banking database.
+
+## 🎯 The Business Problem
+In financial institutions, customer loan requests originate in a CRM and are later synced to a Core-Banking database. Failures in this ETL (Extract, Transform, Load) process can result in:
+1. **Missing Records:** Approved loans that never reach the core system.
+2. **Financial Mismatches:** Incorrect currency conversions (e.g., USD to ILS) during the sync process.
+
+## 💡 The Solution
+This framework simulates and tests the integration layer by:
+* Fetching live **USD to ILS exchange rates** via a 3rd-party API.
+* Using advanced **Cross-Database SQL Queries** (`ATTACH DATABASE`) to compare records.
+* Validating both data presence and mathematical accuracy at the database level.
+
+## 🏗️ Architecture (Service Object Model)
+The project is built with strict separation of concerns, demonstrating senior-level backend testing practices:
+* **`infra/`**: Agnostic drivers for API requests and SQLite connections.
+* **`logic/`**: The business logic layer containing complex SQL validations and API data extraction.
+* **`data_forge/`**: Dynamic data generation using [FixtureForge](https://pypi.org/project/FixtureForge/) (A custom PyPI package I developed).
+* **`tests/`**: Clean, readable Pytest suites utilizing Data-Driven Testing (DDT).
+* **`config/`**: Centralized configuration management.
+
+## 🚀 Key Features
+* **Dynamic Data Generation:** Uses **FixtureForge** to generate fresh, realistic mock databases (Source and Target) on every test run.
+* **Live API Integration:** Calculates expected financial values dynamically based on real-world exchange rates.
+* **Controlled Bug Injection:** A configurable toggle to inject intentional bugs into the target database to verify that the automated tests catch them.
+* **CI/CD Ready:** Fully integrated with GitHub Actions for automated test execution on every push.
+
+## 🛠️ How to Run Locally
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Yaniv2809/crm2core_qa.git](https://github.com/Yaniv2809/crm2core_qa.git)
+   cd crm2core_qa
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run the test suite:**
+   ```bash
+   pytest tests/ -v
+   ```
+
+4. **Generate and view the Allure Report (Optional):**
+   ```bash
+   pytest tests/ --alluredir=allure-results
+   allure serve allure-results
+   ```
+
+## 🟢🔴 The "Red/Green" Pipeline Toggle
+By default, this framework runs in "Green Mode" (tests pass). To see the framework catch actual ETL bugs:
+1. Open `config/config.json`.
+2. Change `"inject_intentional_bugs": false` to `true`.
+3. Run the tests. The suite will successfully detect a missing record (`CRM-1005`) and a financial calculation error (`CRM-1010`).

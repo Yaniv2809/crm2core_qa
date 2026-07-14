@@ -10,6 +10,7 @@
   },
   "business_logic": {
     "default_ils_rate": 3.75,
-    "allowed_deviation_cents": 0.01
+    "allowed_deviation_cents": 0.01,
+    "inject_intentional_bugs": true
   }
 }

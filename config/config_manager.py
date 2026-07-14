@@ -40,8 +40,14 @@ class ConfigManager:
     @classmethod
     def get_allowed_deviation(cls) -> float:
         return cls.load_config()["business_logic"]["allowed_deviation_cents"]
+    
+    @classmethod
+    def should_inject_bugs(cls) -> bool:
+        """Returns True if the system should simulate data anomalies for testing purposes."""
+        return cls.load_config()["business_logic"].get("inject_intentional_bugs", False)
 
 # quick test to verify the configuration is loaded correctly
 if __name__ == "__main__":
     print(f"Loaded API URL: {ConfigManager.get_api_url()}")
     print(f"CRM DB Path: {ConfigManager.get_crm_db_path()}")
+    print(f"Should Inject Bugs: {ConfigManager.should_inject_bugs()}")

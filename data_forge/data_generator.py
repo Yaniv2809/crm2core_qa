@@ -58,7 +58,7 @@ class TestDataGenerator:
     def generate_and_inject_data(self, exchange_rate: float, record_count: int = 50):
         """
         Generates base records using FixtureForge, transforms them for the target DB,
-        and injects intentional bugs (Data Mutations) to be caught by the tests.
+        and conditionally injects intentional bugs based on the configuration.
         """
         self._setup_schemas()
         
@@ -68,11 +68,13 @@ class TestDataGenerator:
         crm_records = []
         bank_records = []
         
+        # Check if we should simulate bugs based on config
+        inject_bugs = ConfigManager.should_inject_bugs()
+        
         for i in range(1, record_count + 1):
             req_id = f"CRM-{1000 + i}"
             
             # Use FixtureForge to generate realistic dummy strings/numbers
-            # Note: Adjust the method names according to your FixtureForge API
             first_name = forge.generate_string(length=6) 
             last_name = forge.generate_string(length=8)
             amount_usd = round(random.uniform(5000.0, 50000.0), 2)
@@ -86,13 +88,13 @@ class TestDataGenerator:
             # --- Injecting Intentional Bugs for Testing ---
             
             # Bug 1: Missing Record (Skip insertion to Bank DB for CRM-1005)
-            if req_id == "CRM-1005":
+            if inject_bugs and req_id == "CRM-1005":
                 continue 
                 
             expected_ils = round(amount_usd * exchange_rate, 2)
             
             # Bug 2: Amount Mismatch (Alter the calculated ILS for CRM-1010)
-            if req_id == "CRM-1010":
+            if inject_bugs and req_id == "CRM-1010":
                 expected_ils = expected_ils - 100.00 
 
             full_name = f"{first_name} {last_name}"
